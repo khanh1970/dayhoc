@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thử Thách Bài 3 và Bài 4</title>
+    <style>
+        body { font-family: Arial; background-color: #e0f7fa; text-align: center; }
+        .bai-tap { background: white; padding: 20px; border-radius: 20px; margin: 20px auto; width: 80%; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #ff6f00; font-size: 30px; }
+        
+        /* CSS cho Bài 3: 3 Cánh cửa */
+        .cua { display: inline-block; width: 150px; height: 180px; background: #8d6e63; color: white; font-size: 35px; font-weight: bold; margin: 15px; line-height: 180px; border-radius: 20px 20px 0 0; border: 5px solid #5d4037; cursor: pointer; }
+        .cua:hover { background: #6d4c41; }
+        
+        /* CSS cho Bài 4: Kéo thả ô tô */
+        .oto { display: inline-block; width: 100px; height: 60px; background: #ffb74d; color: white; font-size: 35px; font-weight: bold; line-height: 60px; border-radius: 15px; margin: 10px; cursor: grab; }
+        .cho-trong { display: inline-block; width: 110px; height: 70px; border: 3px dashed #0277bd; background: #e3f2fd; vertical-align: middle; margin: 0 10px; }
+        .phep-tinh { font-size: 40px; font-weight: bold; margin: 20px; }
+        
+        #thong-bao { font-size: 35px; color: #2e7d32; font-weight: bold; display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- GIAO DIỆN BÀI 3 -->
+    <div class="bai-tap">
+        <h2>BÀI 3: CON MÈO NẤP SAU CÁNH CỬA NÀO? (Nhấp chuột để mở)</h2>
+        <div class="cua" onclick="sai()">40 - 7</div>
+        <div class="cua" onclick="sai()">53 - 9</div>
+        <div class="cua" id="cuaC" onclick="dungBai3()">50 - 4</div>
+    </div>
+
+    <!-- GIAO DIỆN BÀI 4 -->
+    <div class="bai-tap">
+        <h2>BÀI 4: KÉO THẢ Ô TÔ VÀO ĐÚNG CHỖ</h2>
+        <div>
+            <div class="oto" draggable="true" id="so10">10</div>
+            <div class="oto" draggable="true" id="so20" style="background:#ba68c8;">20</div>
+            <div class="oto" draggable="true" id="so40" style="background:#81c784;">40</div>
+        </div>
+        
+        <div class="phep-tinh">
+            60 - <div class="cho-trong" id="dich1" data-dapan="so10"></div> = 50
+        </div>
+        <div class="phep-tinh">
+            <div class="cho-trong" id="dich2" data-dapan="so40"></div> - 20 = 20
+        </div>
+        <p id="thong-bao">🎉 CHÚC MỪNG CÁC CON ĐÃ LÀM ĐÚNG! 🎉</p>
+    </div>
+
+    <script>
+        // Tạo âm thanh đơn giản không cần tải file MP3
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        function phatAmThanh(tanSo, loai) {
+            if(ctx.state === 'suspended') ctx.resume();
+            const osc = ctx.createOscillator();
+            osc.type = loai;
+            osc.frequency.setValueAtTime(tanSo, ctx.currentTime);
+            osc.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.2);
+        }
+
+        function dungBai3() {
+            phatAmThanh(800, 'sine'); // Kêu Ting
+            document.getElementById('cuaC').style.background = '#ffb74d';
+            document.getElementById('cuaC').innerHTML = "🐱 MÈO";
+        }
+        
+        function sai() {
+            phatAmThanh(150, 'sawtooth'); // Kêu Bíp
+        }
+
+        // Cài đặt Kéo Thả cho Bài 4
+        let soDiem = 0;
+        const cacOTo = document.querySelectorAll('.oto');
+        const cacChoTrong = document.querySelectorAll('.cho-trong');
+
+        cacOTo.forEach(oto => {
+            oto.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text', e.target.id);
+            });
+        });
+
+        cacChoTrong.forEach(cho => {
+            cho.addEventListener('dragover', (e) => e.preventDefault());
+            cho.addEventListener('drop', (e) => {
+                e.preventDefault();
+                let duLieuKéo = e.dataTransfer.getData('text');
+                if (duLieuKéo === cho.getAttribute('data-dapan')) {
+                    phatAmThanh(800, 'sine'); // Kêu Ting
+                    cho.appendChild(document.getElementById(duLieuKéo));
+                    document.getElementById(duLieuKéo).style.margin = '5px';
+                    soDiem++;
+                    if(soDiem === 2) {
+                        document.getElementById('thong-bao').style.display = 'block';
+                    }
+                } else {
+                    sai();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
